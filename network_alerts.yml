@@ -1,0 +1,20 @@
+groups:
+- name: NETWORK_MONITOR
+  rules:
+    - alert: 111入口网卡负载预警
+      expr: sum by (instance) (irate(node_network_receive_bytes_total{instance="10.8.8.61:9100", job="node",device!~"bond.*?|lo"}[5m])) >= 10000000
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "111网卡入口流量负载超过90%"
+        description: "host发现网卡负载较高，需要手动调整任务队列减少网络消耗。"
+    - alert: 111出口网卡负载预警
+      expr: sum by (instance) (irate(node_network_transmit_bytes_total{instance="10.8.8.61:9100", device!~"lo|bond[0-9]|cbr[0-9]|veth.*"}[5m])) >= 10000000
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "111网卡出口流量负载超过90%"
+        description: "host发现网卡负载较高，需要手动调整任务队列减少网络消耗。"
+

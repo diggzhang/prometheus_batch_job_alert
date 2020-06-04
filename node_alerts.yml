@@ -1,0 +1,11 @@
+groups:
+- name: HOST_MONITOR
+  rules:
+    - alert: 111掉线
+      expr: up{instance="10.8.8.61:9100",job="node"}  == 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "8.61主机掉线"
+        description: "发现8.61 host down，需手动检查机器是否存活。"
