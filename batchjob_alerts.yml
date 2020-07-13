@@ -2,7 +2,6 @@ groups:
 - name: BATCHJOB_MONITOR
   rules:
     - alert: 批处理任务执行超时
-      #expr: mybatchjob_duration_seconds > (avg(mybatchjob_duration_seconds) + avg(mybatchjob_duration_seconds) * 0.5)
       expr: mybatchjob_duration_seconds > 40
       for: 1m
       labels:
@@ -11,8 +10,17 @@ groups:
         summary: "批处理任务执行超时"
         description: "host发现某批处理任务执行超时，预期时间在40min内，请进一步观测。"
     - alert: 批处理任务状态没有及时返回
-      #expr: mybatchjob_duration_seconds > (avg(mybatchjob_duration_seconds) + avg(mybatchjob_duration_seconds) * 0.5)
       expr: (time() - mybatchjob_last_success{job="push_pushgateway"}) > 1000
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "批处理任务执行没有及时返回"
+        description: "host发现某批处理任务执行超时，这个点差不多就该执行完了，为什么还跑着呢？请进一步观测。"
+    - alert: 批处理任务状态相对过去三天没有正确返回
+      expr: (time()
+  - batchjob_success{exported_job="dim_school.sh",instance="pushgateway:9091",job="push_pushgateway"})
+  > abs((time() - 86400 * 3) - (topk(1, avg_over_time(batchjob_success{exported_job="dim_school.sh",instance="pushgateway:9091",job="push_pushgateway"}[3d]))))
       for: 1m
       labels:
         severity: warning
